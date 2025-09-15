@@ -1,4 +1,5 @@
 import { useState, type Dispatch } from "react";
+import {v4 as uuidv4} from "uuid"
 import { categories } from "../data/categories";
 import type { Activity } from "../types";
 import type { ActivityActions } from "../reducers/activity-reducer";
@@ -7,13 +8,18 @@ type FormProps = {
   dispatch: Dispatch<ActivityActions>
 }
 
-function Form({dispatch}: FormProps) {
-  const [activity, setActivity] = useState<Activity>({
-    category: 1,
-    name: "",
-    calories: 0,
-  });
-  const handleChange = (e:React.ChangeEvent<HTMLSelectElement> | React.ChangeEvent<HTMLInputElement> ) => {
+const initialState: Activity = {
+  id: uuidv4(),
+  category: 1,
+  name: "",
+  calories: 0,
+}
+
+function Form({ dispatch }: FormProps) {
+  const [activity, setActivity] = useState<Activity>(
+    initialState
+  );
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement> | React.ChangeEvent<HTMLInputElement>) => {
     const isNumberField = ["category", "calories"].includes(e.target.id);
     setActivity({
       ...activity,
@@ -27,11 +33,15 @@ function Form({dispatch}: FormProps) {
     return name.trim() !== "" && calories > 0
   }
 
-  const handleSubmit = (e:React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // console.log("Submit...");
-    
-    dispatch({type:"save-activity", payload:{newActivity: activity}})
+
+    dispatch({ type: "save-activity", payload: { newActivity: activity } })
+
+    setActivity({
+      ...initialState, id: uuidv4()
+    })
   }
 
   return (
@@ -85,7 +95,7 @@ function Form({dispatch}: FormProps) {
         id="calories"
         type="submit"
         className="bg-gray-800 hover:bg-gray-900 text-white w-full p-2 font-bold uppercase cursor-pointer disabled:opacity-10 disabled:cursor-not-allowed"
-        value={`Guardar ${activity.category === 1 ? "comida":"ejercicio"}`}
+        value={`Guardar ${activity.category === 1 ? "comida" : "ejercicio"}`}
         disabled={!isValidActivity()}
       />
     </form>
